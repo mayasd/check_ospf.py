@@ -152,37 +152,36 @@ def check_ospf(snmp_check_values):
         count = 1
         for item in command_output_ospf_ip_list:
             # Start building dictionary
-            neighbor_name = 'Neighbor' + str(count).zfill(2)
+            neighbor_name = 'Neighbor' + str(count).zfill(6)
             count += 1
             chunks = item.split()
             if len(chunks) == 4:
                 ip_address = chunks[3]
-                # Create a dictionary with key: 'NeighborXX' and value: list of wanted info
-                ospf_neighbor_data[neighbor_name] = ['Neighbor IP', ip_address]
+                # Create a dictionary with key: 'NeighborXXXXXX' and value: list of wanted info
+                if neighbor_name not in ospf_neighbor_data.keys():
+                        ospf_neighbor_data[neighbor_name] = {}
+                ospf_neighbor_data[neighbor_name]['Neighbor IP'] = ip_address
+
 
         ## Parse router ID's
 
         for item in command_output_ospf_rid_list:
             # Find matching key/value pair in dictionary, so we can add the RID's we find to the correct pair
-            chunks = item.split()
+            chunks = re.sub(snmp_check_values['ospfNbrRtrId']+'.', '', item, 1).split()
             if len(chunks) == 4:
                 # Search for RID in ospfNbrRtrId
                 for key, value in ospf_neighbor_data.items():
-                    result = re.search(value[1], chunks[0])
-                    if result:
-                        ospf_neighbor_data[key].append('RID')
-                        ospf_neighbor_data[key].append(chunks[3])
+                        if chunks[0].startswith(value['Neighbor IP']):
+                                ospf_neighbor_data[key]['RID'] = chunks[3]
 
         ## Parse OSPF neighbor states
 
         for item in command_output_ospf_state_list:
-            chunks = item.split()
+            chunks = re.sub(snmp_check_values['ospfNbrState']+'.', '', item, 1).split()
             if len(chunks) == 4:
                 for key, value in ospf_neighbor_data.items():
-                    result = re.search(value[1], chunks[0])
-                    if result:
-                        ospf_neighbor_data[key].append('State')
-                        ospf_neighbor_data[key].append(chunks[3])
+                    if chunks[0].startswith(value['Neighbor IP']):
+                        ospf_neighbor_data[key]['State'] = chunks[3]
 
         ### DEBUG OUTPUT
 
@@ -203,9 +202,9 @@ def check_ospf(snmp_check_values):
 
         for key, value in ospf_neighbor_data.items():
 
-            current_ip = value[1]
-            current_rid = value[3]
-            ospf_status = int(value[5])
+            current_ip = value['Neighbor IP']
+            current_rid = value['RID']
+            ospf_status = int(value['State'])
 
             ## IP: Check for specified IP(s)
 
@@ -355,9 +354,9 @@ def main():
     snmp_check_values = {
         'community'                 : args.SNMP_COMMUNITY,
         'host'                      : args.HOST,
-        'ospfNbrIpAddr'             : '1.3.6.1.2.1.14.10.1.1',
-        'ospfNbrRtrId'              : '1.3.6.1.2.1.14.10.1.3',
-        'ospfNbrState'              : '1.3.6.1.2.1.14.10.1.6',
+        'ospfNbrIpAddr'             : '.1.3.6.1.2.1.14.10.1.1',
+        'ospfNbrRtrId'              : '.1.3.6.1.2.1.14.10.1.3',
+        'ospfNbrState'              : '.1.3.6.1.2.1.14.10.1.6',
         'rid'                       : None,
         'ip'                        : None,
         'min_neighbors'             : None,
