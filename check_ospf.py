@@ -48,6 +48,13 @@ def error(msg):
 
 
 def check_ospf(snmp_check_values):
+    def dump_neighbour_data():
+        print('\n // DEBUG ospf_neighbor_data\n')
+        print(' {:15}  {}'.format('Name', 'Data'))
+        print(' {:15}  {}'.format('-----', '-------------------------'))
+        for key, value in sorted(ospf_neighbor_data.items()):
+            print(' {key:15} {value}'.format(**locals()))
+        print()
 
     ospf_states = {
         1   :   'DOWN',
@@ -180,14 +187,7 @@ def check_ospf(snmp_check_values):
         ### DEBUG OUTPUT
 
         if snmp_check_values['debug']:
-
-            print('\n // DEBUG ospf_neighbor_data\n')
-            print(' {:15}  {}'.format('Name', 'Data'))
-            print(' {:15}  {}'.format('-----', '-------------------------'))
-            for key, value in sorted(ospf_neighbor_data.items()):
-                print(' {key:15} {value}'.format(**locals()))
-            print()
-
+            dump_neighbour_data()
 
         ### EVALUATE DATA USING USER INPUT
 
