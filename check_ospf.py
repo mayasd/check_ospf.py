@@ -89,7 +89,7 @@ def check_ospf(snmp_check_values):
         # snmpwalk: get OSPF neighbor interface IP's (read: next-hops)
         command_output_ospf_ip = subprocess.check_output(
             [
-                'snmpwalk', '-v', '2c', '-c',
+                'snmpbulkwalk', '-On', '-v', '2c', '-c',
                 snmp_check_values['community'],
                 snmp_check_values['host'],
                 snmp_check_values['ospfNbrIpAddr']
@@ -99,7 +99,7 @@ def check_ospf(snmp_check_values):
         # snmpwalk: get OSPF neighbor router  ID's
         command_output_ospf_rid = subprocess.check_output(
             [
-                'snmpwalk', '-v', '2c', '-c',
+                'snmpbulkwalk', '-On', '-v', '2c', '-c',
                 snmp_check_values['community'],
                 snmp_check_values['host'],
                 snmp_check_values['ospfNbrRtrId']
@@ -109,7 +109,7 @@ def check_ospf(snmp_check_values):
         # snmpwalk: get OSPF neighbor states
         command_output_ospf_state = subprocess.check_output(
             [
-                'snmpwalk', '-v', '2c', '-c',
+                'snmpbulkwalk', '-On', '-v', '2c', '-c',
                 snmp_check_values['community'],
                 snmp_check_values['host'],
                 snmp_check_values['ospfNbrState']
