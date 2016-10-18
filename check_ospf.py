@@ -181,7 +181,10 @@ def check_ospf(snmp_check_values):
             if len(chunks) == 4:
                 for key, value in ospf_neighbor_data.items():
                     if chunks[0].startswith(value['Neighbor IP']):
-                        ospf_neighbor_data[key]['State'] = chunks[3]
+                        if isinstance(chunks[3], str):
+                                ospf_neighbor_data[key]['State'] = re.search('.*\((\d)\)', chunks[3]).group(1)
+                        else:
+                                ospf_neighbor_data[key]['State'] = chunks[3]
 
         ### DEBUG OUTPUT
 
